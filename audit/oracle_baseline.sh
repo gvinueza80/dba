@@ -2,29 +2,13 @@
 # audit/oracle_baseline.sh
 # Captures Oracle version, configuration, patches, installed features
 
-set -e
-
 # Configuration
 REPORT_FILE="baseline_report.txt"
 TEMP_REPORT="${REPORT_FILE}.tmp"
 ORACLE_USER="oracle"
 
-# Error handler for cleanup on exit or failure
-trap 'cleanup_on_exit $?' EXIT
-
-cleanup_on_exit() {
-    local exit_code=$1
-    if [ $exit_code -ne 0 ]; then
-        echo "ERROR: Script failed with exit code $exit_code" >&2
-        rm -f "$TEMP_REPORT"
-        exit $exit_code
-    fi
-    # Success: finalize the report
-    if [ -f "$TEMP_REPORT" ]; then
-        mv "$TEMP_REPORT" "$REPORT_FILE"
-        echo "Baseline captured: $REPORT_FILE"
-    fi
-}
+# Cleanup on exit (remove temp file)
+trap 'rm -f "$TEMP_REPORT"' EXIT
 
 # Validate prerequisites
 validate_prerequisites() {
@@ -85,7 +69,7 @@ validate_prerequisites
     echo ""
     execute_sqlplus "SET HEADING OFF FEEDBACK OFF
 SELECT 'Oracle Version: ' || BANNER FROM v\$version WHERE BANNER LIKE 'Oracle%';
-SELECT 'Patch Level: ' || patch_level FROM registry\$history WHERE action = 'APPLY' ORDER BY action_time DESC WHERE ROWNUM <= 1;" 2>&1 || { echo "WARNING: Patch level query failed"; true; }
+SELECT 'Patch Level: ' || patch_level FROM registry\$history WHERE action = 'APPLY' AND ROWNUM <= 1 ORDER BY action_time DESC;" 2>&1 || { echo "WARNING: Patch level query failed"; true; }
     echo ""
 } >> "$TEMP_REPORT"
 
@@ -116,3 +100,19 @@ SELECT 'Redo Logs:' FROM dual;
 SELECT member FROM v\$logfile;" 2>&1 || { echo "WARNING: Data files and logs query failed"; true; }
     echo ""
 } >> "$TEMP_REPORT"
+
+# Validate that the report contains meaningful content and finalize
+if [ -f "$TEMP_REPORT" ]; then
+    REPORT_SIZE=$(stat -f%z "$TEMP_REPORT" 2>/dev/null || stat -c%s "$TEMP_REPORT" 2>/dev/null || echo 0)
+    if [ "$REPORT_SIZE" -ge 500 ]; then
+        mv "$TEMP_REPORT" "$REPORT_FILE"
+        echo "SUCCESS: Baseline captured to $REPORT_FILE ($(wc -l < "$REPORT_FILE") lines)"
+    else
+        echo "ERROR: Report file is too small ($REPORT_SIZE bytes). Queries may have failed." >&2
+        rm -f "$TEMP_REPORT"
+        exit 1
+    fi
+else
+    echo "ERROR: Temporary report file was not created" >&2
+    exit 1
+fi
