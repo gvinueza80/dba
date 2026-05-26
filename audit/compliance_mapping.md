@@ -2,6 +2,8 @@
 
 This document maps audit tasks to CIS benchmark controls.
 
+**Scope:** Oracle Database 19c (compatible with Oracle 12c+)
+
 ## Section 1: Installation, Patching, and Upgrades
 
 - **CIS 1.1: Ensure latest Oracle patch is installed**
@@ -71,10 +73,6 @@ This document maps audit tasks to CIS benchmark controls.
 
 ## Section 6: Auditing and Logging
 
-- **CIS 6.1: Ensure AUDIT_TRAIL parameter is set to 'DB' or 'DB, EXTENDED'**
-  - Status: [TO BE ASSESSED IN TASK 3]
-  - Finding: [Will populate after audit]
-
 - **CIS 6.2: Ensure audit records are protected**
   - Status: [TO BE ASSESSED IN TASK 8]
   - Finding: [Will populate after audit]
@@ -120,10 +118,10 @@ This document maps audit tasks to CIS benchmark controls.
 | 3: General Security | 4 | Pending | Password policies and access controls |
 | 4: Privilege Management | 3 | Pending | Role and privilege grants |
 | 5: User Account Management | 2 | Pending | Default accounts and role assignment |
-| 6: Auditing & Logging | 3 | Pending | Audit trail configuration and retention |
+| 6: Auditing & Logging | 2 | Pending | Audit records protection and retention |
 | 7: Database Encryption | 2 | Pending | TDE and network encryption |
 | 8: Backup & Recovery | 3 | Pending | Backup configuration and Data Guard |
-| **TOTAL** | **20** | **Pending** | Phase 1 assessment in progress |
+| **TOTAL** | **19** | **Pending** | Phase 1 assessment in progress |
 
 ---
 
