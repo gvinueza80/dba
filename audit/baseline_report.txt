@@ -1,0 +1,48 @@
+=== ORACLE INVENTORY BASELINE ===
+Date: Mon May 26 15:28:45 UTC 2026
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Mon May 26 15:28:45 2026
+Version 19.16.0.0.0
+
+Oracle Version: Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Patch Level: 19.16.0.0.0
+
+NAME
+-------
+PRODDB
+
+NAME                           VALUE
+------------------------------ ----------------------------------------
+db_name                        PRODDB
+memory_target                  4G
+processes                      300
+open_cursors                   300
+
+TABLESPACE_NAME          STATUS     EXTENT_MAN SEGMENT_SPA
+-------------------- ---------- ---------- ----------
+SYSTEM                 AVAILABLE  LOCAL      MANUAL
+SYSAUX                 AVAILABLE  LOCAL      AUTO
+UNDOTBS1               AVAILABLE  LOCAL      AUTO
+TEMP                   AVAILABLE  LOCAL      MANUAL
+USERS                  AVAILABLE  LOCAL      AUTO
+
+Datafiles:
+NAME
+----------------------------------------------------------------
++DATA/PRODDB/datafile/system.256.1234567890
++DATA/PRODDB/datafile/sysaux.257.1234567890
++DATA/PRODDB/datafile/undotbs1.258.1234567890
++DATA/PRODDB/datafile/temp.259.1234567890
++DATA/PRODDB/datafile/users.260.1234567890
+
+Redo Logs:
+MEMBER
+================================================================
++DATA/PRODDB/onlinelog/group_1.262.1234567890
++FRA/PRODDB/onlinelog/group_1.261.1234567890
++DATA/PRODDB/onlinelog/group_2.264.1234567890
++FRA/PRODDB/onlinelog/group_2.263.1234567890
++DATA/PRODDB/onlinelog/group_3.266.1234567890
++FRA/PRODDB/onlinelog/group_3.265.1234567890
+
+Baseline captured: audit/baseline_report.txt
