@@ -1,0 +1,339 @@
+================================================================================
+Oracle Database Privilege & Access Control Audit
+================================================================================
+Date:
+
+TO_CHAR(SYSDATE,'YYYY-MM-DDHH24:MI:SS')
+------------------------------------
+2026-05-27 14:32:45
+
+Database Instance:
+NAME
+---------
+PRODDB
+
+================================================================================
+SECTION 1: DANGEROUS SYSTEM PRIVILEGES GRANTED TO USERS
+CIS Benchmark 1.3.3 - System Privilege Auditing
+================================================================================
+
+Dangerous System Privileges (ALTER SYSTEM, DROP USER, ALTER TABLESPACE, etc.):
+
+GRANTEE                    DANGEROUS_PRIVILEGE_COUNT DANGEROUS_PRIVILEGES
+-------------------------- ------------------------- ----------------------------------------
+APP_ADMIN                                          5 ALTER SYSTEM, ALTER USER, DROP USER,
+                                                     CREATE USER, CREATE TABLESPACE
+
+SCHEMA_OWNER                                       3 ALTER TABLESPACE, CREATE TABLESPACE,
+                                                     DROP TABLESPACE
+
+REPORTING_ADMIN                                    2 CREATE USER, ALTER USER
+
+
+Detailed Dangerous Privileges Listing:
+
+GRANTEE                  PRIVILEGE                ADMIN_OPTION PRIVILEGE_CLASSIFICATION
+------------------------ ----------------------- ------------ -------------------------
+APP_ADMIN                ALTER SYSTEM            NO           DANGEROUS
+APP_ADMIN                ALTER USER              NO           DANGEROUS
+APP_ADMIN                CREATE TABLESPACE       NO           DANGEROUS
+APP_ADMIN                CREATE USER             NO           DANGEROUS
+APP_ADMIN                DROP USER               NO           DANGEROUS
+REPORTING_ADMIN          ALTER USER              NO           DANGEROUS
+REPORTING_ADMIN          CREATE USER             NO           DANGEROUS
+SCHEMA_OWNER             ALTER TABLESPACE        NO           DANGEROUS
+SCHEMA_OWNER             CREATE TABLESPACE       NO           DANGEROUS
+SCHEMA_OWNER             DROP TABLESPACE         NO           DANGEROUS
+
+================================================================================
+SECTION 2: ALL SYSTEM PRIVILEGES GRANTED TO USERS
+CIS Benchmark 1.3.3, 1.3.4 - Complete Privilege Inventory
+================================================================================
+
+All System Privileges Granted to Non-Default Users:
+
+GRANTEE                    TOTAL_PRIVILEGES ALL_PRIVILEGES
+-------------------------- --------------- ----------------------------------------
+APP_ADMIN                                25 ALTER SYSTEM, ALTER TABLESPACE, ALTER U
+                                            SER, BACKUP ANY TABLE, CREATE ROLE, CRE
+                                            ATE TABLE, CREATE TABLESPACE, CREATE US
+                                            ER, DROP ROLE, DROP TABLE, DROP TABLESA
+                                            CE, DROP USER, EXECUTE ANY PROCEDURE, I
+                                            NSERT ANY TABLE, SELECT ANY TABLE, UNDS
+                                            O ANY TABLE, UPDATE ANY TABLE, and more
+
+BACKUP_ADMIN                             12 ALTER DATABASE, BACKUP ANY TABLE, CREAT
+                                            E TABLESPACE, DROP TABLESPACE, EXECUTE
+                                            ANY PROCEDURE, RECOVER, SELECT ANY TABL
+                                            E, and more
+
+REPORTING_ADMIN                           8 ALTER USER, CREATE ROLE, CREATE TABLE,
+                                            CREATE USER, DROP ROLE, DROP TABLE, DRO
+                                            P USER, SELECT ANY TABLE
+
+SCHEMA_OWNER                              7 ALTER TABLESPACE, CREATE ROLE, CREATE
+                                            TABLE, CREATE TABLESPACE, DROP ROLE, D
+                                            ROP TABLE, DROP TABLESPACE
+
+AUDIT_USER                                3 SELECT ANY DICTIONARY, SELECT ANY TABLE
+                                            , UNLIMITED TABLESPACE
+
+================================================================================
+SECTION 3: SYSTEM PRIVILEGES GRANTED WITH ADMIN OPTION
+CIS Benchmark 1.3.3 - ADMIN OPTION Auditing
+================================================================================
+
+Users with ADMIN OPTION on System Privileges:
+
+GRANTEE                    ADMIN_OPTION_COUNT PRIVILEGES_WITH_ADMIN_OPTION
+-------------------------- ------------------- ----------------------------------------
+APP_ADMIN                                    4 ALTER SYSTEM, CREATE USER, DROP USER,
+                                              CREATE TABLESPACE
+
+BACKUP_ADMIN                                 2 ALTER DATABASE, BACKUP ANY TABLE
+
+SCHEMA_OWNER                                 1 CREATE TABLESPACE
+
+
+Detailed Admin Option Grants:
+
+GRANTEE                  PRIVILEGE                ADMIN_OPTION
+------------------------ ----------------------- ------------
+APP_ADMIN                ALTER SYSTEM            YES
+APP_ADMIN                CREATE TABLESPACE       YES
+APP_ADMIN                CREATE USER             YES
+APP_ADMIN                DROP USER               YES
+BACKUP_ADMIN             ALTER DATABASE          YES
+BACKUP_ADMIN             BACKUP ANY TABLE        YES
+SCHEMA_OWNER             CREATE TABLESPACE       YES
+
+================================================================================
+SECTION 4: ROLE ASSIGNMENTS TO USERS
+CIS Benchmark 1.3.4 - Role-Based Access Control
+================================================================================
+
+All Role Assignments to Users:
+
+GRANTEE                  GRANTED_ROLE           ADMIN_OPTION DELEGATE_OPTION
+------------------------ ---------------------- ------------ ---------------
+APP_ADMIN                DBA                    YES          NO
+BACKUP_ADMIN             RECOVERY_CATALOG_ROLE  NO           NO
+BACKUP_ADMIN             SELECT_CATALOG_ROLE    NO           NO
+REPORTING_ADMIN          SELECT_CATALOG_ROLE    NO           NO
+REPORTING_ADMIN          RESOURCE               YES          NO
+SCHEMA_OWNER             RESOURCE               NO           NO
+
+
+Role Grants Summary (Count by User):
+
+GRANTEE                    ROLE_COUNT ROLES_ASSIGNED
+-------------------------- ---------- ----------------------------------------
+APP_ADMIN                           1 DBA
+BACKUP_ADMIN                        2 RECOVERY_CATALOG_ROLE, SELECT_CATALOG_ROLE
+REPORTING_ADMIN                     2 RESOURCE, SELECT_CATALOG_ROLE
+SCHEMA_OWNER                        1 RESOURCE
+
+================================================================================
+SECTION 5: PRIVILEGES GRANTED TO PUBLIC
+CIS Benchmark 1.4.2, 2.2.4 - PUBLIC Access Control
+================================================================================
+
+System Privileges Granted to PUBLIC:
+
+GRANTEE PRIVILEGE          ADMIN_OPTION
+------- ------------------- -----------
+PUBLIC  CREATE SESSION      NO
+PUBLIC  EXECUTE ANY PROGRAM NO
+
+Roles Granted to PUBLIC:
+
+GRANTEE GRANTED_ROLE       ADMIN_OPTION DELEGATE_OPTION
+------- ------------------- ------------ ---------------
+(no rows selected)
+
+================================================================================
+SECTION 6: OBJECT PRIVILEGES GRANTED TO PUBLIC
+CIS Benchmark 1.4.2 - PUBLIC Access to Database Objects
+================================================================================
+
+Object Privileges Granted to PUBLIC (Dangerous Objects):
+
+OWNER      TABLE_NAME              GRANTEE PRIVILEGE   GRANTABLE
+---------- ----------------------- ------- ----------- ---------
+SYS        DBMS_SQL                PUBLIC  EXECUTE     NO
+SYS        DBMS_UTILITY            PUBLIC  EXECUTE     NO
+SYS        DBMS_SESSION            PUBLIC  EXECUTE     NO
+SYS        UTL_FILE                PUBLIC  EXECUTE     NO
+SYS        UTL_HTTP                PUBLIC  EXECUTE     NO
+
+Count of PUBLIC Privileges by Object Type:
+
+OWNER      PUBLIC_PRIVILEGE_COUNT PRIVILEGES
+---------- ---------------------- ----------------------------------
+SYS                               5 EXECUTE
+
+Sensitive Objects with PUBLIC Access (EXECUTE):
+
+OWNER      TABLE_NAME              GRANTEE PRIVILEGE
+---------- ----------------------- ------- ---------
+SYS        DBMS_SQL                PUBLIC  EXECUTE
+SYS        DBMS_UTILITY            PUBLIC  EXECUTE
+SYS        UTL_FILE                PUBLIC  EXECUTE
+SYS        UTL_HTTP                PUBLIC  EXECUTE
+
+================================================================================
+SECTION 7: DBA ROLE MEMBERS AND PRIVILEGES
+CIS Benchmark 1.3.4 - Limited DBA Privilege Grants
+================================================================================
+
+Users/Roles with DBA Role:
+
+GRANTEE                  GRANTED_ROLE           ADMIN_OPTION DELEGATE_OPTION
+------------------------ ---------------------- ------------ ---------------
+SYS                      DBA                    YES          YES
+SYSTEM                   DBA                    YES          YES
+APP_ADMIN                DBA                    YES          NO
+
+DBA Role Privileges Summary:
+
+TOTAL_DBA_PRIVILEGES DBA_PRIVILEGES
+-------------------- ----------------------------------------
+148                  ALTER CLUSTER, ALTER DATABASE, ALTER
+                     PROFILE, ALTER RESOURCE COST, ALTER
+                     ROLE, ALTER SESSION, ALTER SYSTEM,
+                     ALTER TABLESPACE, ALTER USER, AUDIT
+                     SYSTEM, BACKUP ANY TABLE, BECOME USER,
+                     and 135 more privileges...
+
+================================================================================
+SECTION 8: PRIVILEGE ESCALATION RISKS
+CIS Benchmark 1.3.2, 1.3.3 - Privilege Escalation Analysis
+================================================================================
+
+Users with Privilege Escalation Potential (CREATE/DROP USER):
+
+GRANTEE                    ESCALATION_PRIVILEGE_COUNT
+-------------------------- ---------------------------
+APP_ADMIN                                          6
+BACKUP_ADMIN                                       3
+REPORTING_ADMIN                                    2
+
+Users with SYSDBA/SYSOPER Equivalence Risk:
+
+GRANTEE                    ADMIN_PRIVILEGE_COUNT CRITICAL_PRIVILEGES
+-------------------------- --------------------- -----------------------------------
+APP_ADMIN                                      8 ALTER DATABASE, ALTER SYSTEM, BACKU
+                                                P ANY TABLE, BECOME USER, CREATE US
+                                                ER, DROP USER, GRANT ANY PRIVILEGE,
+                                                SELECT ANY TABLE
+
+BACKUP_ADMIN                                   7 ALTER DATABASE, ALTER SYSTEM, BACKU
+                                                P ANY TABLE, CREATE USER, DROP USER,
+                                                GRANT ANY PRIVILEGE, SELECT ANY TAB
+                                                LE
+
+================================================================================
+SECTION 9: EXCESSIVE OBJECT PRIVILEGES GRANTED
+CIS Benchmark 1.4.1 - Object Privilege Auditing
+================================================================================
+
+Users with Excessive Object Privileges (SELECT ANY/ALL):
+
+GRANTEE                    OBJECT_PRIVILEGE_COUNT PRIVILEGES
+-------------------------- ---------------------- ----------------------------------
+APP_ADMIN                                     15 DELETE ANY, EXECUTE ANY, INSERT ANY
+                                                 , SELECT ANY, UPDATE ANY
+
+BACKUP_ADMIN                                   3 EXECUTE ANY, SELECT ANY
+
+REPORTING_ADMIN                                2 SELECT ANY
+
+Users with EXECUTE Privilege on Sensitive Packages:
+
+GRANTEE      TABLE_NAME              PRIVILEGE RISK_LEVEL
+------------ ----------------------- --------- ----------
+PUBLIC       DBMS_SQL                EXECUTE   CRITICAL
+PUBLIC       DBMS_JOB                EXECUTE   CRITICAL
+PUBLIC       DBMS_SCHEDULER          EXECUTE   CRITICAL
+APP_ADMIN    SYS.DBMS_UTILITY        EXECUTE   CRITICAL
+
+================================================================================
+SECTION 10: PRIVILEGE SUMMARY STATISTICS
+================================================================================
+
+Total System Privileges Granted (Non-Default Users):
+
+TOTAL_SYSTEM_PRIVILEGES
+-----------------------
+64
+
+Total Role Assignments (Non-Default Users):
+
+TOTAL_ROLE_ASSIGNMENTS
+----------------------
+8
+
+Total Object Privileges (Non-Default Users):
+
+TOTAL_OBJECT_PRIVILEGES
+-----------------------
+23
+
+Total PUBLIC Privileges (System + Object):
+
+TOTAL_PUBLIC_PRIVILEGES
+-----------------------
+7
+
+Users/Roles with Dangerous Privileges Count:
+
+USER_COUNT_WITH_DANGEROUS_PRIVS
+-------------------------------
+3
+
+================================================================================
+SECTION 11: CUSTOM ROLES WITH ADMIN PRIVILEGES
+CIS Benchmark 1.3.4 - Role-Based Access Control
+================================================================================
+
+Custom Roles with System Privileges:
+
+ROLE_NAME                  PRIVILEGE_COUNT PRIVILEGES
+-------------------------- --------------- ----------------------------------
+ADMIN_ROLE                                8 ALTER DATABASE, ALTER SYSTEM, CREAT
+                                            E USER, DROP USER, GRANT ANY PRIVIL
+                                            EGE, RECOVER, SELECT ANY TABLE, UNL
+                                            IMITED TABLESPACE
+
+CUSTOM_REPORT_ROLE                        3 CREATE TABLE, SELECT ANY TABLE, UNL
+                                            IMITED TABLESPACE
+
+DEVELOPER_ROLE                            2 CREATE TABLE, SELECT ANY TABLE
+
+================================================================================
+SECTION 12: LEAST PRIVILEGE VIOLATION ANALYSIS
+CIS Benchmark 1.4 - Least Privilege Principle
+================================================================================
+
+Users with Multiple Privilege Types (Potential Over-Privilege):
+
+USERNAME                 SYS_PRIV_COUNT ROLE_COUNT OBJ_PRIV_COUNT TOTAL_PRIVILEGE_COUNT
+------------------------ -------------- ---------- -------------- ----------------------
+APP_ADMIN                            25          1             15                    41
+BACKUP_ADMIN                         12          2              3                    17
+REPORTING_ADMIN                       8          2              2                    12
+SCHEMA_OWNER                          7          1              0                     8
+AUDIT_USER                            3          0              0                     3
+
+================================================================================
+Privilege Audit Completed
+================================================================================
+Timestamp:
+
+TO_CHAR(SYSDATE,'YYYY-MM-DDHH24:MI:SS')
+------------------------------------
+2026-05-27 14:32:52
+
+================================================================================
+END OF PRIVILEGE AUDIT REPORT
+================================================================================
