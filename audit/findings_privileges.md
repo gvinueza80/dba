@@ -175,6 +175,8 @@ AUDIT DROP USER;
 ## Medium Priority Issues
 
 ### 1. Lack of RBAC Strategy
+**Risk: MEDIUM**
+
 No formal role hierarchy. Should implement:
 - Administrative Tier (DBAs, system admins)
 - Developer Tier (schema owners, developers)
@@ -184,6 +186,8 @@ No formal role hierarchy. Should implement:
 ---
 
 ### 2. Missing Change Control Process
+**Risk: MEDIUM**
+
 No documentation of:
 - Why privileges are assigned
 - Who approved them
