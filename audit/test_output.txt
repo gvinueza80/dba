@@ -1,0 +1,11 @@
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Wed May 27 08:18:42 2026
+Version 19.3.0.0.0
+
+Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+
+ERROR:
+ORA-12560: TNS:protocol adapter error
+
+
+Enter user-name: 

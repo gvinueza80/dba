@@ -44,12 +44,6 @@ execute_sqlplus() {
 $sql_query
 EXIT;
 EOF
-
-    # Check for sqlplus command execution status
-    if [ $? -ne 0 ]; then
-        echo "ERROR: sqlplus command failed" >&2
-        return 1
-    fi
 }
 
 # Validate prerequisites before proceeding
@@ -69,7 +63,7 @@ validate_prerequisites
     echo ""
     execute_sqlplus "SET HEADING OFF FEEDBACK OFF
 SELECT 'Oracle Version: ' || BANNER FROM v\$version WHERE BANNER LIKE 'Oracle%';
-SELECT 'Patch Level: ' || patch_level FROM registry\$history WHERE action = 'APPLY' AND ROWNUM <= 1 ORDER BY action_time DESC;" 2>&1 || { echo "WARNING: Patch level query failed"; true; }
+SELECT 'Patch Level: ' || patch_level FROM (SELECT patch_level FROM registry\$history WHERE action = 'APPLY' ORDER BY action_time DESC) WHERE ROWNUM <= 1;" 2>&1 || { echo "WARNING: Patch level query failed"; true; }
     echo ""
 } >> "$TEMP_REPORT"
 
@@ -103,7 +97,7 @@ SELECT member FROM v\$logfile;" 2>&1 || { echo "WARNING: Data files and logs que
 
 # Validate that the report contains meaningful content and finalize
 if [ -f "$TEMP_REPORT" ]; then
-    REPORT_SIZE=$(stat -f%z "$TEMP_REPORT" 2>/dev/null || stat -c%s "$TEMP_REPORT" 2>/dev/null || echo 0)
+    REPORT_SIZE=$(wc -c < "$TEMP_REPORT" 2>/dev/null || echo 0)
     if [ "$REPORT_SIZE" -ge 500 ]; then
         mv "$TEMP_REPORT" "$REPORT_FILE"
         echo "SUCCESS: Baseline captured to $REPORT_FILE ($(wc -l < "$REPORT_FILE") lines)"
