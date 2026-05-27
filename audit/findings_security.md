@@ -11,7 +11,7 @@
 
 The security assessment of PRODDB has identified **3 critical security issues**, **2 high-priority issues**, and **3 medium-priority improvements**. While the database has a reasonably good baseline configuration with many default accounts properly locked and audit trails enabled, several password policy settings require immediate remediation to meet CIS Oracle Database Benchmarks compliance.
 
-**Compliance Score: 7/12 areas (58% compliant)**
+**Compliance Score:** 7 of 12 benchmark areas compliant, 5 requiring remediation
 
 ---
 
@@ -25,10 +25,10 @@ The security assessment of PRODDB has identified **3 critical security issues**,
 **Impact:** Accounts are vulnerable to brute-force password attacks. An attacker could make unlimited login attempts without triggering an account lock.
 
 **Remediation:**
-`sql
+```sql
 ALTER PROFILE DEFAULT LIMIT FAILED_LOGIN_ATTEMPTS 5;
 ALTER PROFILE DEFAULT LIMIT PASSWORD_LOCK_TIME 1;
-`
+```
 
 ---
 
@@ -44,10 +44,10 @@ ALTER PROFILE DEFAULT LIMIT PASSWORD_LOCK_TIME 1;
 - AUDSYS (OPEN status) - **HIGH RISK**
 
 **Remediation:**
-`sql
+```sql
 ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME 90;
 ALTER PROFILE DEFAULT LIMIT PASSWORD_GRACE_TIME 7;
-`
+```
 
 ---
 
@@ -57,10 +57,10 @@ ALTER PROFILE DEFAULT LIMIT PASSWORD_GRACE_TIME 7;
 **Risk Level:** CRITICAL  
 
 **Remediation:**
-`sql
+```sql
 ALTER USER DBSNMP ACCOUNT LOCK;
 ALTER USER AUDSYS ACCOUNT LOCK;
-`
+```
 
 ---
 
@@ -72,10 +72,10 @@ ALTER USER AUDSYS ACCOUNT LOCK;
 **Impact:** Users can reuse old/compromised passwords
 
 **Remediation:**
-`sql
+```sql
 ALTER PROFILE DEFAULT LIMIT PASSWORD_REUSE_TIME 365;
 ALTER PROFILE DEFAULT LIMIT PASSWORD_REUSE_MAX 5;
-`
+```
 
 ---
 
@@ -84,7 +84,10 @@ ALTER PROFILE DEFAULT LIMIT PASSWORD_REUSE_MAX 5;
 **Requirement:** Custom complexity function  
 **Impact:** No enforcement of strong password complexity
 
-**Remediation:** Implement password verification function (see detailed findings document)
+**Remediation:**
+```sql
+ALTER PROFILE DEFAULT LIMIT PASSWORD_VERIFY_FUNCTION verify_function_11g;
+```
 
 ---
 
@@ -144,10 +147,10 @@ ALTER PROFILE DEFAULT LIMIT PASSWORD_REUSE_MAX 5;
 ## Verification Steps
 
 After remediation, verify with:
-`sql
+```sql
 SELECT profile, resource_name, limit FROM dba_profiles 
 WHERE profile = 'DEFAULT' AND resource_type = 'PASSWORD';
-`
+```
 
 Expected Compliant Values:
 - FAILED_LOGIN_ATTEMPTS: 5
