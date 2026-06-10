@@ -1,7 +1,7 @@
 # Oracle DBA Initiative Program — Design Spec
 
 **Date:** 2026-06-10  
-**Author:** Gabriela Malicha  
+**Author:** Marco Castillo  
 **Status:** Approved  
 **Scope:** Senior Oracle DBA initiative program for Oracle 19c (PRODDB) on RHEL 8
 
