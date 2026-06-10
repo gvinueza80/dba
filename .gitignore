@@ -1,0 +1,22 @@
+﻿# Generated reports — never commit output files
+reports/
+
+# Local logs
+logs/
+*.log
+
+# Secrets and environment files — never commit real credentials
+config/db_config.env
+*.env
+*.wallet
+*.p12
+*.jks
+cwallet.sso
+ewallet.p12
+
+# Oracle temp files
+/tmp/*.sql
+
+# OS artifacts
+.DS_Store
+Thumbs.db
