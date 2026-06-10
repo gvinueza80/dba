@@ -1,3 +1,0 @@
-PROMPT Testing Database Connection...
-SELECT name FROM v;
-EXIT;
