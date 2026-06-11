@@ -70,7 +70,24 @@ EOF
 }
 
 # Run a SQL string and return output. Usage: oracle_run_sql "SELECT 1 FROM dual;"
+# For CDB with ORACLE_PDB set, automatically switches to that PDB container first.
 oracle_run_sql() {
+  local sql="$1"
+  local container_sql=""
+  if [[ "${IS_CDB:-NO}" == "YES" && -n "${ORACLE_PDB:-}" ]]; then
+    container_sql="ALTER SESSION SET CONTAINER = ${ORACLE_PDB};"
+  fi
+  "$SQLPLUS" -S "$ORACLE_CONN_STRING" <<EOF 2>&1
+SET HEADING OFF FEEDBACK OFF PAGESIZE 0 LINESIZE 200 TRIMSPOOL ON
+${container_sql}
+${sql}
+EXIT;
+EOF
+}
+
+# Run a SQL string always at CDB root level (ignores ORACLE_PDB).
+# Use for instance-level queries: licensing, health check, V$ views.
+oracle_run_sql_root() {
   local sql="$1"
   "$SQLPLUS" -S "$ORACLE_CONN_STRING" <<EOF 2>&1
 SET HEADING OFF FEEDBACK OFF PAGESIZE 0 LINESIZE 200 TRIMSPOOL ON

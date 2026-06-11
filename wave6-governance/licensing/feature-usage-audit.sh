@@ -35,13 +35,14 @@ log_info "Starting Oracle feature usage audit"
 {
 echo "========================================================================"
 echo "ORACLE FEATURE USAGE AUDIT"
-echo "Database: ${ORACLE_SID}"
+echo "Database: ${ORACLE_SID} (${IS_CDB:-NO} CDB)"
+echo "Context:  CDB\$ROOT (licensing audit always runs at root level)"
 echo "Date:     $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================================================"
 echo ""
 
 echo "--- FEATURES CURRENTLY IN USE (DETECTED_USAGES > 0) ---"
-oracle_run_sql "
+oracle_run_sql_root "
 SELECT
     name                                          AS feature_name,
     version,
@@ -57,7 +58,7 @@ echo "--- EXTRA-COST OPTIONS — CHECK THESE AGAINST YOUR LICENSE ---"
 echo "The following features carry additional Oracle license costs."
 echo "Any row with DETECTED_USAGES > 0 that is NOT in your license is an exposure."
 echo ""
-oracle_run_sql "
+oracle_run_sql_root "
 SELECT
     name                                          AS feature_name,
     detected_usages,
