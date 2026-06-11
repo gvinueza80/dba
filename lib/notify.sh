@@ -9,6 +9,12 @@
 #   NOTIFY_EMAIL          — recipient email address
 #   NOTIFY_SLACK_WEBHOOK  — Slack incoming webhook URL (leave blank to disable)
 
+# Guard: requires bash (not ksh/sh — 'local' and [[ ]] are bash-specific)
+if [ -z "$BASH_VERSION" ]; then
+  echo "ERROR: lib/notify.sh requires bash. Run 'bash' first, then source again." >&2
+  return 1 2>/dev/null || exit 1
+fi
+
 _notify_email() {
   local subject="$1"
   local body="$2"

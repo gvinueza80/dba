@@ -5,6 +5,12 @@
 #        log_warn "message"
 #        log_error "message"
 
+# Guard: requires bash (not ksh/sh — 'local' and (( )) are bash-specific)
+if [ -z "$BASH_VERSION" ]; then
+  echo "ERROR: lib/logger.sh requires bash. Run 'bash' first, then source again." >&2
+  return 1 2>/dev/null || exit 1
+fi
+
 LOG_DIR="${LOG_DIR:-/var/log/oracle-dba}"
 LOG_FILE="${LOG_FILE:-${LOG_DIR}/oracle-dba.log}"
 LOG_MAX_BYTES="${LOG_MAX_BYTES:-10485760}"  # 10 MB default rotation size

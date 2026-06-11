@@ -4,6 +4,12 @@
 #        $SQLPLUS -S / as sysdba @script.sql
 #        oracle_connect_test  # returns 0 if connection succeeds
 
+# Guard: requires bash (not ksh/sh — 'local' and [[ ]] are bash-specific)
+if [ -z "$BASH_VERSION" ]; then
+  echo "ERROR: lib/oracle_connect.sh requires bash. Run 'bash' first, then source again." >&2
+  return 1 2>/dev/null || exit 1
+fi
+
 # Load config if db_config.env exists alongside this toolkit
 _TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [[ -f "${_TOOLKIT_ROOT}/config/db_config.env" ]]; then
