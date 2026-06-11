@@ -90,12 +90,19 @@ _required_license() {
     # Advanced Analytics / Machine Learning
     "Data Mining"|"Advanced Analytics"|Oracle\ Machine\ Learning*)
       echo "ADVANCED_ANALYTICS" ;;
-    # TDE / Encrypted Tablespaces — included in Oracle 19c EE base
-    "Encrypted Tablespaces"|"Transparent Data Encryption")
-      echo "EE_BASE" ;;
-    # Advanced Security — features beyond TDE
-    "Advanced Security"|"Network Encryption"|"Native Network Encryption")
+    # TDE — contract-dependent (see RB-LIC-001 notes)
+    "Encrypted Tablespaces"|"Transparent Data Encryption"|\
+    "Backup Encryption")
+      echo "TDE_VERIFY" ;;
+    # Advanced Security option features
+    "Advanced Security"|"Network Encryption"|"Native Network Encryption"|\
+    "ASO native encryption and checksumming"|\
+    "ACFS Encryption"|\
+    "SecureFile Encryption (user)")
       echo "ADVANCED_SECURITY" ;;
+    # System-internal SecureFile encryption — EE base, no user license needed
+    "SecureFile Encryption (system)")
+      echo "EE_BASE" ;;
     # GoldenGate
     GoldenGate*)
       echo "GOLDENGATE" ;;
@@ -123,6 +130,7 @@ _is_licensed() {
     "ADVANCED_ANALYTICS")   echo "${LICENSE_ADVANCED_ANALYTICS:-NO}" ;;
     "ADVANCED_SECURITY")    echo "${LICENSE_ADVANCED_SECURITY:-NO}" ;;
     "GOLDENGATE")           echo "${LICENSE_GOLDENGATE:-NO}" ;;
+    "TDE_VERIFY")           echo "VERIFY" ;;
     *)                      echo "UNKNOWN" ;;
   esac
 }
@@ -145,6 +153,7 @@ _license_label() {
     "ADVANCED_ANALYTICS")   echo "Advanced Analytics" ;;
     "ADVANCED_SECURITY")    echo "Advanced Security" ;;
     "GOLDENGATE")           echo "GoldenGate" ;;
+    "TDE_VERIFY")           echo "TDE — verify with Oracle (EE base or Advanced Security, contract-dependent)" ;;
     *)                      echo "Unknown" ;;
   esac
 }
@@ -166,6 +175,16 @@ while IFS='|' read -r raw_name raw_usages raw_date raw_current; do
   req_lic="$(_required_license "$fname")"
   lic_status="$(_is_licensed "$req_lic")"
   lic_label="$(_license_label "$req_lic")"
+
+  # TDE: licensing is ambiguous — always flag for manual confirmation
+  if [[ "$req_lic" == "TDE_VERIFY" ]]; then
+    if [[ "$fused" == "TRUE" ]]; then
+      MANUAL_CHECK+=("[CHECK] ${fname} | ACTIVE — TDE licensing is contract-dependent. Oracle 12.2+ documentation suggests EE base, but some Oracle support notes indicate Advanced Security may be required. Confirm with your Oracle account manager or LMS. | last_used=${fdate}")
+    else
+      MANUAL_CHECK+=("[CHECK] ${fname} | INACTIVE — same TDE licensing uncertainty applies if re-enabled. Verify with Oracle. | last_used=${fdate}")
+    fi
+    continue
+  fi
 
   if [[ "$req_lic" == "MULTITENANT_SPECIAL" ]]; then
     pdb_count=0

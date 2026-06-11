@@ -95,7 +95,7 @@ Read-only script — no rollback needed.
 ## Notes
 
 - **Oracle Multitenant:** Single PDB per CDB is free in Oracle 19c EE. The script automatically checks PDB count when `IS_CDB=YES` — no manual check needed.
-- **TDE / Encrypted Tablespaces:** Included in Oracle 19c EE base. The script correctly marks these as covered without requiring Advanced Security.
+- **TDE / Encrypted Tablespaces:** Licensing is contract-dependent — always appears as `[CHECK]`. Oracle 12.2+ documentation suggests TDE tablespace encryption is included in EE base, but some Oracle support notes indicate Advanced Security may be required depending on your contract vintage. **Confirm with your Oracle account manager or Oracle License Management Services (LMS) before assuming it is free.** Once confirmed, document the outcome in `docs/architecture/` for your audit records.
 - **Partitioning (system):** Oracle uses partitioning internally for AWR tables. This does NOT require the Partitioning option. Only user-created partitioned tables trigger a license requirement.
 - **`CURRENTLY_USED = FALSE`:** Features with prior usage but not currently active appear in `[CHECK]` — lower urgency but worth reviewing.
 - Oracle tracks usage cumulatively since install. `CURRENTLY_USED = TRUE` is the most important indicator.
@@ -106,5 +106,6 @@ Read-only script — no rollback needed.
 
 | Date | Author | Change |
 |------|--------|--------|
+| 2026-06-11 | Marco Castillo | TDE changed to [CHECK] — licensing is contract-dependent, confirmed with Oracle required |
 | 2026-06-11 | Marco Castillo | Rewrite: automatic license compliance check using config/licenses.conf |
 | 2026-06-10 | Marco Castillo | Initial version |
