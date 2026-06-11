@@ -11,7 +11,7 @@ if [ -z "$BASH_VERSION" ]; then
   return 1 2>/dev/null || exit 1
 fi
 
-LOG_DIR="${LOG_DIR:-/var/log/oracle-dba}"
+LOG_DIR="${LOG_DIR:-${ORACLE_BASE:-/u01/app/oracle}/logs/oracle-dba}"
 LOG_FILE="${LOG_FILE:-${LOG_DIR}/oracle-dba.log}"
 LOG_MAX_BYTES="${LOG_MAX_BYTES:-10485760}"  # 10 MB default rotation size
 

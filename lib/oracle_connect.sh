@@ -41,9 +41,9 @@ fi
 # Build connection string
 # Prefer Oracle Wallet; fall back to DBA_USER/DBA_PASS; fall back to OS auth
 _oracle_conn_string() {
-  if [[ -n "$ORACLE_WALLET_LOC" ]]; then
+  if [[ -n "${ORACLE_WALLET_LOC:-}" ]]; then
     echo "/@${ORACLE_SID}"
-  elif [[ -n "$DBA_USER" && -n "$DBA_PASS" ]]; then
+  elif [[ -n "${DBA_USER:-}" && -n "${DBA_PASS:-}" ]]; then
     echo "${DBA_USER}/${DBA_PASS}@${ORACLE_SID}"
   else
     echo "/ as sysdba"
