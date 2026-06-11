@@ -291,4 +291,7 @@ if [[ "$EXPOSURE_COUNT" -gt 0 ]]; then
   notify_crit "Oracle License Exposure on ${ORACLE_SID}" \
     "${EXPOSURE_COUNT} unlicensed feature(s) actively in use. Review: ${REPORT_FILE}"
   exit 1
+else
+  notify_info "Oracle License Audit OK — ${ORACLE_SID}" \
+    "Monthly license compliance audit completed. No exposures found.\n\nCovered: ${#COVERED[@]} | Check: ${#MANUAL_CHECK[@]} | Inactive: ${#INACTIVE[@]}\n\nFull report: ${REPORT_FILE}"
 fi
