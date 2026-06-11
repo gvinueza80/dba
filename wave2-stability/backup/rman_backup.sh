@@ -36,12 +36,12 @@ fi
 PATH=/usr/local/bin:$PATH; export PATH
 
 # === Derive ORACLE_HOME from /etc/oratab ===
-ORATAB="/etc/oratab"
-if ! grep -q "^${ORACLE_SID}:" "$ORATAB"; then
+ORATAB="${ORATAB:-/etc/oratab}"
+if ! grep -Fq "^${ORACLE_SID}:" "$ORATAB"; then
   echo "[ERROR] Database $ORACLE_SID not found in $ORATAB"
   exit 2
 fi
-ORACLE_HOME=$(grep "^${ORACLE_SID}:" "$ORATAB" | cut -d':' -f2)
+ORACLE_HOME=$(grep -F "^${ORACLE_SID}:" "$ORATAB" | cut -d':' -f2)
 export ORACLE_HOME
 export PATH=$ORACLE_HOME/bin:$PATH
 
@@ -49,22 +49,24 @@ export PATH=$ORACLE_HOME/bin:$PATH
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLKIT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-source "${TOOLKIT_ROOT}/lib/logger.sh"
-source "${TOOLKIT_ROOT}/lib/oracle_connect.sh"
-source "${TOOLKIT_ROOT}/lib/notify.sh"
-
-# === Log file setup ===
+# === Log file setup (must precede logger.sh so _log_init uses the correct path) ===
 DATE=$(date +%Y%m%d_%H%M%S)
 LOG_FILE="${TOOLKIT_ROOT}/reports/backup/${ORACLE_SID}/rman_backup_${BACKUP_LEVEL}_${DATE}.log"
 mkdir -p "$(dirname "$LOG_FILE")"
 
-exec > >(tee -a "$LOG_FILE") 2>&1
+source "${TOOLKIT_ROOT}/lib/logger.sh"
+source "${TOOLKIT_ROOT}/lib/oracle_connect.sh"
+source "${TOOLKIT_ROOT}/lib/notify.sh"
+
+# RMAN_RETENTION_DAYS comes from thresholds.conf
+# shellcheck source=/dev/null
+[[ -f "${TOOLKIT_ROOT}/config/thresholds.conf" ]] && source "${TOOLKIT_ROOT}/config/thresholds.conf"
 
 export NLS_DATE_FORMAT='DD-MON-YYYY HH24:MI:SS'
 
 unset TWO_TASK
 
-$ORACLE_HOME/bin/rman target / nocatalog<<EOF
+"$ORACLE_HOME/bin/rman" target / nocatalog >> "$LOG_FILE" 2>&1 <<EOF
 backup incremental level ${BACKUP_LEVEL} database plus archivelog delete all input;
 BACKUP CURRENT CONTROLFILE;
 BACKUP SPFILE;
@@ -75,8 +77,9 @@ BACKUP ARCHIVELOG ALL
 DELETE NOPROMPT OBSOLETE RECOVERY WINDOW OF ${RMAN_RETENTION_DAYS:-7} DAYS;
 exit;
 EOF
+RMAN_EXIT=$?
 
-if [ $? -eq 0 ]; then
+if [ $RMAN_EXIT -eq 0 ]; then
   kount=$(grep WARNING "$LOG_FILE" | grep -v RMAN-08137 | wc -l)
 
   if [ "${kount}" -eq 0 ]; then
