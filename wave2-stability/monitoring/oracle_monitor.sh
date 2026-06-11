@@ -29,18 +29,11 @@ PATH=/usr/local/bin:$PATH; export PATH
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLKIT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-source "${TOOLKIT_ROOT}/lib/logger.sh"
-source "${TOOLKIT_ROOT}/lib/oracle_connect.sh"
-source "${TOOLKIT_ROOT}/lib/notify.sh"
-
 # === Parameters and defaults ===
 export DATE=$(date +%F_%H%M)
 export HOSTNAME=$(hostname)
 export ORATAB="/etc/oratab"
 export ORACLE_BASE="${ORACLE_BASE:-/u01/app/oracle}"
-
-# LOG_DIR is set by logger.sh; ISSUE_LOG and LOGFILE are local to this script
-export ISSUE_LOG="${LOG_DIR}/oracle_monitor_issues_$DATE.tmp"
 export SUBJECT="[ALERT] Oracle DB Monitor Issues on $HOSTNAME at $DATE"
 export PING_HOST="localhost"
 
@@ -76,6 +69,13 @@ fi
 
 export ORACLE_HOME=$(grep "^${ORACLE_SID}:" "$ORATAB" | cut -d':' -f2)
 export PATH=$ORACLE_HOME/bin:$PATH
+
+source "${TOOLKIT_ROOT}/lib/logger.sh"
+source "${TOOLKIT_ROOT}/lib/oracle_connect.sh"
+source "${TOOLKIT_ROOT}/lib/notify.sh"
+
+# LOG_DIR is set by logger.sh; ISSUE_LOG and LOGFILE are local to this script
+export ISSUE_LOG="${LOG_DIR}/oracle_monitor_issues_$DATE.tmp"
 
 # Make log file include the DB name
 export LOGFILE="${LOG_DIR}/monitor_${ORACLE_SID}_$DATE.log"
@@ -1162,7 +1162,13 @@ EOF
   else
     for pdb in $PDBS; do
       echo -e "\n------ PDB: $pdb ------" | tee -a "$LOGFILE"
+      # Set ORACLE_PDB so oracle_run_sql() from lib/oracle_connect.sh switches container.
+      # Note: _run_db_checks uses inline sqlplus / as sysdba heredocs which connect to
+      # CDB$ROOT regardless — instance-level V$ checks (FRA, resource usage, blocking)
+      # run at root intentionally. PDB-specific DBA_ views return CDB-wide data from root.
+      export ORACLE_PDB="$pdb"
       _run_db_checks
+      unset ORACLE_PDB
     done
   fi
 fi
