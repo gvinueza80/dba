@@ -6,14 +6,8 @@
 #   crontab -e          # edit live crontab
 #   crontab -l          # view live crontab
 #
-# Copy the entries below into crontab -e, adjusting SIDs and paths as needed.
+# Copy the entries below into crontab -e.
 # TOOLKIT_ROOT = /u01/app/oracle/scripts/oracle-dba-toolkit
-#
-# Log directories must exist before the first run:
-#   mkdir -p /home/oracle/local/monitor
-#   mkdir -p /home/oracle/local/backup_scripts/CONBI8/log
-#   mkdir -p /home/oracle/local/backup_scripts/CONBI16/log
-#   mkdir -p /home/oracle/local/audit
 
 # ─── Environment ──────────────────────────────────────────────────────────────
 SHELL=/bin/bash
@@ -22,27 +16,22 @@ ORACLE_BASE=/u01/app/oracle
 
 # ─── Wave 2 — Monitoring ──────────────────────────────────────────────────────
 # Run every 15 min during business hours (08:00–17:00), Mon–Fri
-# Each database gets its own log file.
 
-*/15 08-17 * * 1-5 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/monitoring/oracle_monitor.sh CONBI8  >> /home/oracle/local/monitor/oracle_monitor_CONBI8.log  2>&1
-*/15 08-17 * * 1-5 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/monitoring/oracle_monitor.sh CONBI16 >> /home/oracle/local/monitor/oracle_monitor_CONBI16.log 2>&1
+*/15 08-17 * * 1-5 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/monitoring/oracle_monitor.sh CONBI8  >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/oracle_monitor_CONBI8.log  2>&1
+*/15 08-17 * * 1-5 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/monitoring/oracle_monitor.sh CONBI16 >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/oracle_monitor_CONBI16.log 2>&1
 
 # ─── Wave 2 — RMAN Backup ─────────────────────────────────────────────────────
 # Level 0 (full)        — Friday at 23:45
 # Level 1 (incremental) — Monday–Thursday at 23:45
-# Scripts write detailed logs under reports/backup/<SID>/ inside the toolkit.
-# The redirect below captures any startup errors before logging initialises.
 
-45 23 * * 5   /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI8  0 >> /home/oracle/local/backup_scripts/CONBI8/log/rman_backup0_CONBI8.log  2>&1
-45 23 * * 5   /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI16 0 >> /home/oracle/local/backup_scripts/CONBI16/log/rman_backup0_CONBI16.log 2>&1
+45 23 * * 5   /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI8  0 >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/rman_backup0_CONBI8.log  2>&1
+45 23 * * 5   /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI16 0 >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/rman_backup0_CONBI16.log 2>&1
 
-45 23 * * 1-4 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI8  1 >> /home/oracle/local/backup_scripts/CONBI8/log/rman_backup1_CONBI8.log  2>&1
-45 23 * * 1-4 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI16 1 >> /home/oracle/local/backup_scripts/CONBI16/log/rman_backup1_CONBI16.log 2>&1
+45 23 * * 1-4 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI8  1 >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/rman_backup1_CONBI8.log  2>&1
+45 23 * * 1-4 /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-stability/backup/rman_backup.sh CONBI16 1 >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/rman_backup1_CONBI16.log 2>&1
 
 # ─── Wave 6 — License Compliance Audit ───────────────────────────────────────
 # Run on the 1st of each month at 08:00
-# Report saved under reports/licensing/ inside the toolkit.
-# Email notification sent automatically by the script.
 
-0 8 1 * * /u01/app/oracle/scripts/oracle-dba-toolkit/wave6-governance/licensing/feature-usage-audit.sh CONBI8  >> /home/oracle/local/audit/feature_usage_CONBI8.log  2>&1
-0 8 1 * * /u01/app/oracle/scripts/oracle-dba-toolkit/wave6-governance/licensing/feature-usage-audit.sh CONBI16 >> /home/oracle/local/audit/feature_usage_CONBI16.log 2>&1
+0 8 1 * * /u01/app/oracle/scripts/oracle-dba-toolkit/wave6-governance/licensing/feature-usage-audit.sh CONBI8  >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/feature_usage_CONBI8.log  2>&1
+0 8 1 * * /u01/app/oracle/scripts/oracle-dba-toolkit/wave6-governance/licensing/feature-usage-audit.sh CONBI16 >> /u01/app/oracle/scripts/oracle-dba-toolkit/logs/feature_usage_CONBI16.log 2>&1
