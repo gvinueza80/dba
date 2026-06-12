@@ -15,10 +15,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLKIT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-# Accept optional ORACLE_SID as first argument (before --dry-run)
+# Accept optional ORACLE_SID as first argument (before --dry-run).
+# Always override — never let a stale env variable from a previous run win.
 for arg in "$@"; do
-  if [[ "$arg" != "--dry-run" && -z "${ORACLE_SID:-}" ]]; then
+  if [[ "$arg" != "--dry-run" ]]; then
     export ORACLE_SID="$arg"
+    break
   fi
 done
 

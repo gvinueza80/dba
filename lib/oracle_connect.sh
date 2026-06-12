@@ -19,7 +19,9 @@ if [[ -f "${_TOOLKIT_ROOT}/config/db_config.env" ]]; then
 fi
 
 # Load per-database config if ORACLE_SID is already set and a matching file exists.
+# Clear database-specific vars first so stale values from a previous run never bleed through.
 # Create config/db_<SID>.env for each database (see config/db_EXAMPLE.env.example).
+unset IS_CDB ORACLE_PDB ORACLE_HOME DBA_USER DBA_PASS ORACLE_WALLET_LOC
 if [[ -n "${ORACLE_SID:-}" && -f "${_TOOLKIT_ROOT}/config/db_${ORACLE_SID}.env" ]]; then
   # shellcheck source=/dev/null
   source "${_TOOLKIT_ROOT}/config/db_${ORACLE_SID}.env"
