@@ -95,7 +95,6 @@ check_server_fs_rw_access() {
   SERVER_FS=$(mount | grep -vE "$EXCLUDE_TYPES" | awk '{print $3}' | grep -vE '^/$' | sort -u)
 
   for fs in $SERVER_FS; do
-    TEST_FILE="$fs/.rw_test_$$"
     if [ ! -d "$fs" ]; then
       echo "[WARN] Skipping non-existent: $fs" | tee -a "$LOGFILE"
       echo "[FS] Filesystem $fs does not exist." >> "$ISSUE_LOG"
@@ -109,14 +108,21 @@ check_server_fs_rw_access() {
       continue
     fi
 
-    # Check write access
-    touch "$TEST_FILE" 2>/dev/null
-    if [ $? -eq 0 ]; then
-      echo "[OK] $fs is readable and writable." | tee -a "$LOGFILE"
-      rm -f "$TEST_FILE"
+    # Check write permission. The mount point root is often owned by root (drwxr-xr-x),
+    # so test up to 2 levels deep for any directory writable by the oracle user.
+    # find -writable is a pure permission check — no file is created or written.
+    local writable_path
+    if [ -w "$fs" ]; then
+      writable_path="$fs"
     else
-      echo "[ALERT] $fs is readable but NOT writable (may be read-only)." | tee -a "$LOGFILE"
-      echo -e "\n[FS] Filesystem $fs is NOT writable (read-only?)." >> "$ISSUE_LOG"
+      writable_path=$(find "$fs" -maxdepth 2 -writable -type d 2>/dev/null | head -1)
+    fi
+
+    if [ -n "$writable_path" ]; then
+      echo "[OK] $fs is writable (oracle can write to: $writable_path)" | tee -a "$LOGFILE"
+    else
+      echo "[ALERT] $fs is readable but NOT writable by oracle (may be read-only)." | tee -a "$LOGFILE"
+      echo -e "\n[FS] Filesystem $fs is NOT writable by oracle (read-only?)." >> "$ISSUE_LOG"
     fi
   done
 }
@@ -337,10 +343,17 @@ check_filesystem_usage() {
             threshold=$THRESHOLD_FS
         fi
 
+        # Check write permission for the oracle OS user — uses kernel permission
+        # check only (no file created, no data written).
+        local writable="no"
+        [[ -w "$mountpoint" ]] && writable="yes"
+
         if [ "$usage" -gt "$threshold" ]; then
             alert_found=1
-            echo "[ALERT] FS usage on $mountpoint ($fstype): $usage% > $threshold%" | tee -a "$LOGFILE" | tee -a "$tmpfile"
-            echo "[FILESYSTEM] High usage on $mountpoint ($fstype): $usage%" >> "$ISSUE_LOG"
+            echo "[ALERT] FS usage on $mountpoint ($fstype): $usage% > $threshold% | writable=$writable" | tee -a "$LOGFILE" | tee -a "$tmpfile"
+            echo "[FILESYSTEM] High usage on $mountpoint ($fstype): $usage% | writable=$writable" >> "$ISSUE_LOG"
+        else
+            echo "[OK]    $mountpoint ($fstype): $usage% | writable=$writable" | tee -a "$LOGFILE"
         fi
     done < <(df -hP | awk 'NR>1')
 
@@ -1137,7 +1150,7 @@ _run_db_checks() {
   if [[ ! -f "$FLAGFILE" ]]; then
      check_redo_log_switches "$LOGFILE" "$ISSUE_LOG"
      touch "$FLAGFILE"
-     find /tmp -name 'redo_switch_check_*' -mtime +0 -delete
+     find /tmp -name 'redo_switch_check_*' -mtime +0 -delete 2>/dev/null
   fi
   #check_db_growth "$LOGFILE" "$ISSUE_LOG"
   #check_security_users "$LOGFILE" "$ISSUE_LOG"

@@ -27,6 +27,14 @@ if [[ -n "${ORACLE_SID:-}" && -f "${_TOOLKIT_ROOT}/config/db_${ORACLE_SID}.env" 
   source "${_TOOLKIT_ROOT}/config/db_${ORACLE_SID}.env"
 fi
 
+# Export key variables so child processes (sqlplus, rman, dgmgrl) inherit them.
+# Config files may assign without 'export'; without this block sqlplus cannot
+# find its message files and fails with SP2-0667.
+[[ -n "${ORACLE_SID:-}"  ]] && export ORACLE_SID
+[[ -n "${ORACLE_HOME:-}" ]] && export ORACLE_HOME && export PATH="${ORACLE_HOME}/bin:${PATH}"
+[[ -n "${ORACLE_BASE:-}" ]] && export ORACLE_BASE
+[[ -n "${IS_CDB:-}"      ]] && export IS_CDB
+
 # Load thresholds
 if [[ -f "${_TOOLKIT_ROOT}/config/thresholds.conf" ]]; then
   # shellcheck source=/dev/null
