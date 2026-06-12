@@ -343,17 +343,12 @@ check_filesystem_usage() {
             threshold=$THRESHOLD_FS
         fi
 
-        # Check write permission for the oracle OS user — uses kernel permission
-        # check only (no file created, no data written).
-        local writable="no"
-        [[ -w "$mountpoint" ]] && writable="yes"
-
         if [ "$usage" -gt "$threshold" ]; then
             alert_found=1
-            echo "[ALERT] FS usage on $mountpoint ($fstype): $usage% > $threshold% | writable=$writable" | tee -a "$LOGFILE" | tee -a "$tmpfile"
-            echo "[FILESYSTEM] High usage on $mountpoint ($fstype): $usage% | writable=$writable" >> "$ISSUE_LOG"
+            echo "[ALERT] FS usage on $mountpoint ($fstype): $usage% > $threshold%" | tee -a "$LOGFILE" | tee -a "$tmpfile"
+            echo "[FILESYSTEM] High usage on $mountpoint ($fstype): $usage%" >> "$ISSUE_LOG"
         else
-            echo "[OK]    $mountpoint ($fstype): $usage% | writable=$writable" | tee -a "$LOGFILE"
+            echo "[OK]    $mountpoint ($fstype): $usage%" | tee -a "$LOGFILE"
         fi
     done < <(df -hP | awk 'NR>1')
 
