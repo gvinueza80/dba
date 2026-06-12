@@ -37,11 +37,11 @@ PATH=/usr/local/bin:$PATH; export PATH
 
 # === Derive ORACLE_HOME from /etc/oratab ===
 ORATAB="${ORATAB:-/etc/oratab}"
-if ! grep -Fq "^${ORACLE_SID}:" "$ORATAB"; then
+if ! grep -q "^${ORACLE_SID}:" "$ORATAB"; then
   echo "[ERROR] Database $ORACLE_SID not found in $ORATAB"
   exit 2
 fi
-ORACLE_HOME=$(grep -F "^${ORACLE_SID}:" "$ORATAB" | cut -d':' -f2)
+ORACLE_HOME=$(grep "^${ORACLE_SID}:" "$ORATAB" | cut -d':' -f2)
 export ORACLE_HOME
 export PATH=$ORACLE_HOME/bin:$PATH
 

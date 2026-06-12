@@ -44,8 +44,8 @@ fi
 # If ORACLE_HOME is still not set, derive it from /etc/oratab using ORACLE_SID.
 if [[ -z "${ORACLE_HOME:-}" && -n "${ORACLE_SID:-}" ]]; then
   _ORATAB="${ORATAB:-/etc/oratab}"
-  if grep -Fq "^${ORACLE_SID}:" "$_ORATAB" 2>/dev/null; then
-    ORACLE_HOME=$(grep -F "^${ORACLE_SID}:" "$_ORATAB" | cut -d':' -f2)
+  if grep -q "^${ORACLE_SID}:" "$_ORATAB" 2>/dev/null; then
+    ORACLE_HOME=$(grep "^${ORACLE_SID}:" "$_ORATAB" | cut -d':' -f2)
     export ORACLE_HOME
     export PATH="$ORACLE_HOME/bin:$PATH"
   fi
