@@ -2,7 +2,11 @@
 # Oracle Feature Usage — License Compliance Audit
 # Compares active Oracle feature usage against config/licenses.conf and flags exposures.
 # Safe: read-only, no changes made to the database.
-# Usage: ./feature-usage-audit.sh [--dry-run]
+# Usage: ./feature-usage-audit.sh [<ORACLE_SID>] [--dry-run]
+#   ORACLE_SID  Optional. If omitted, uses ORACLE_SID from environment or config/db_config.env.
+#               Useful for running against each database on a multi-DB server.
+# Example: ./feature-usage-audit.sh PRODDB
+#          ./feature-usage-audit.sh TRNG --dry-run
 #
 # Exit codes: 0 = compliant, 1 = license exposures found, 2 = error
 
@@ -10,6 +14,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLKIT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+# Accept optional ORACLE_SID as first argument (before --dry-run)
+for arg in "$@"; do
+  if [[ "$arg" != "--dry-run" && -z "${ORACLE_SID:-}" ]]; then
+    export ORACLE_SID="$arg"
+  fi
+done
 
 source "${TOOLKIT_ROOT}/lib/logger.sh"
 source "${TOOLKIT_ROOT}/lib/oracle_connect.sh"
@@ -29,7 +40,7 @@ DRY_RUN=false
 for arg in "$@"; do [[ "$arg" == "--dry-run" ]] && DRY_RUN=true; done
 
 REPORT_DIR="${TOOLKIT_ROOT}/reports/licensing"
-REPORT_FILE="${REPORT_DIR}/$(date +%Y-%m-%d)-feature-usage.txt"
+REPORT_FILE="${REPORT_DIR}/$(date +%Y-%m-%d)-${ORACLE_SID:-unknown}-feature-usage.txt"
 
 if $DRY_RUN; then
   log_info "[DRY RUN] Would query DBA_FEATURE_USAGE_STATISTICS and write to ${REPORT_FILE}"

@@ -6,8 +6,12 @@ logs/
 *.log
 
 # Secrets and environment files — never commit real credentials
+# config/db_*.env covers all per-database configs (db_PRODDB.env, db_TRNG.env, etc.)
 config/db_config.env
+config/db_*.env
 *.env
+# Allow example templates
+!*.env.example
 *.wallet
 *.p12
 *.jks

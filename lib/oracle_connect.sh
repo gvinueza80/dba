@@ -10,11 +10,19 @@ if [ -z "$BASH_VERSION" ]; then
   return 1 2>/dev/null || exit 1
 fi
 
-# Load config if db_config.env exists alongside this toolkit
+# Load shared config (NOTIFY_EMAIL, LOG_DIR, ORACLE_BASE, AUTO_RECOMPILE, etc.)
+# db_config.env must NOT contain ORACLE_SID or ORACLE_HOME — those are per-database.
 _TOOLKIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [[ -f "${_TOOLKIT_ROOT}/config/db_config.env" ]]; then
   # shellcheck source=/dev/null
   source "${_TOOLKIT_ROOT}/config/db_config.env"
+fi
+
+# Load per-database config if ORACLE_SID is already set and a matching file exists.
+# Create config/db_<SID>.env for each database (see config/db_EXAMPLE.env.example).
+if [[ -n "${ORACLE_SID:-}" && -f "${_TOOLKIT_ROOT}/config/db_${ORACLE_SID}.env" ]]; then
+  # shellcheck source=/dev/null
+  source "${_TOOLKIT_ROOT}/config/db_${ORACLE_SID}.env"
 fi
 
 # Load thresholds
@@ -23,9 +31,21 @@ if [[ -f "${_TOOLKIT_ROOT}/config/thresholds.conf" ]]; then
   source "${_TOOLKIT_ROOT}/config/thresholds.conf"
 fi
 
+# If ORACLE_HOME is still not set, derive it from /etc/oratab using ORACLE_SID.
+if [[ -z "${ORACLE_HOME:-}" && -n "${ORACLE_SID:-}" ]]; then
+  _ORATAB="${ORATAB:-/etc/oratab}"
+  if grep -Fq "^${ORACLE_SID}:" "$_ORATAB" 2>/dev/null; then
+    ORACLE_HOME=$(grep -F "^${ORACLE_SID}:" "$_ORATAB" | cut -d':' -f2)
+    export ORACLE_HOME
+    export PATH="$ORACLE_HOME/bin:$PATH"
+  fi
+fi
+
 # Validate ORACLE_HOME
-if [[ -z "$ORACLE_HOME" ]]; then
-  echo "ERROR: ORACLE_HOME is not set. Source oraenv or set it in config/db_config.env." >&2
+if [[ -z "${ORACLE_HOME:-}" ]]; then
+  echo "ERROR: ORACLE_HOME is not set." >&2
+  echo "  Set ORACLE_SID before sourcing this lib, or create config/db_${ORACLE_SID:-YOURSID}.env" >&2
+  echo "  See config/db_EXAMPLE.env.example for the template." >&2
   exit 1
 fi
 
