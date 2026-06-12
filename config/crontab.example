@@ -17,6 +17,12 @@ SHELL=/bin/bash
 PATH=/usr/local/bin:/usr/bin:/bin
 ORACLE_BASE=/u01/app/oracle
 
+# ─── Wave 2 — Daily Health Check ─────────────────────────────────────────────
+# Run every day at 07:00 (before business hours)
+
+0 7 * * * /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-health-monitoring/health-check/daily_health_check.sh CONBI8  2>&1
+0 7 * * * /u01/app/oracle/scripts/oracle-dba-toolkit/wave2-health-monitoring/health-check/daily_health_check.sh CONBI16 2>&1
+
 # ─── Wave 2 — Monitoring ──────────────────────────────────────────────────────
 # Run every 15 min during business hours (08:00–17:00), Mon–Fri
 
