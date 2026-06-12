@@ -1,0 +1,11 @@
+# Force LF line endings for all shell scripts and text files on checkout.
+# Prevents Windows CRLF from breaking bash scripts on Linux.
+* text=auto
+*.sh text eol=lf
+*.ksh text eol=lf
+*.env text eol=lf
+*.env.example text eol=lf
+*.conf text eol=lf
+*.md text eol=lf
+*.sql text eol=lf
+*.txt text eol=lf
